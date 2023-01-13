@@ -52,161 +52,161 @@ public class DataAccessService : IDataAccessService
         switch (request)
         {
             case "getAllMaterials":
-            {
-                var materials = await context.Material.ToListAsync();
-                var json = JsonConvert.SerializeObject(materials);
-                byte[] message = Encoding.UTF8.GetBytes(json);
+                {
+                    var materials = await context.Material.ToListAsync();
+                    var json = JsonConvert.SerializeObject(materials);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
 
-                _messagingService.Publish(exchange, queue, route, request, message);
+                    _messagingService.Publish(exchange, queue, route, request, message);
 
-                break;
-            }
+                    break;
+                }
             case "getMaterialById":
-            {
-                Guid id = Guid.Parse(data);
-                var material = await context.Material.SingleOrDefaultAsync(m => m.Id == id);
-                var json = JsonConvert.SerializeObject(material);
-                byte[] message = Encoding.UTF8.GetBytes(json);
+                {
+                    Guid id = Guid.Parse(data);
+                    var material = await context.Material.SingleOrDefaultAsync(m => m.Id == id);
+                    var json = JsonConvert.SerializeObject(material);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
 
-                _messagingService.Publish(exchange, queue, route, request, message);
+                    _messagingService.Publish(exchange, queue, route, request, message);
 
-                break;
-            }
+                    break;
+                }
             case "addMaterial":
-            {
-                var material = JsonConvert.DeserializeObject<Material>(data);
-                if (material == null)
+                {
+                    var material = JsonConvert.DeserializeObject<Material>(data);
+                    if (material == null)
+                        break;
+
+                    context.Add(material);
+                    await context.SaveChangesAsync();
+
+                    var newMaterial =
+                        await context.Material.SingleOrDefaultAsync(m => m.Name == material.Name || m.Id == material.Id);
+                    if (newMaterial == null)
+                        break;
+                    var json = JsonConvert.SerializeObject(newMaterial);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
+                    _messagingService.Publish(exchange, queue, route, request, message);
+
                     break;
-
-                context.Add(material);
-                await context.SaveChangesAsync();
-
-                var newMaterial =
-                    await context.Material.SingleOrDefaultAsync(m => m.Name == material.Name || m.Id == material.Id);
-                if (newMaterial == null)
-                    break;
-                var json = JsonConvert.SerializeObject(newMaterial);
-                byte[] message = Encoding.UTF8.GetBytes(json);
-                _messagingService.Publish(exchange, queue, route, request, message);
-
-                break;
-            }
+                }
             case "deleteMaterial":
-            {
-                Guid id = Guid.Parse(data);
+                {
+                    Guid id = Guid.Parse(data);
 
-                var material = await context.Material.SingleOrDefaultAsync(m => m.Id == id);
-                if (material == null)
-                    return;
+                    var material = await context.Material.SingleOrDefaultAsync(m => m.Id == id);
+                    if (material == null)
+                        return;
 
-                context.Material.Remove(material);
-                await context.SaveChangesAsync();
-                var json = JsonConvert.SerializeObject(material);
-                byte[] message = Encoding.UTF8.GetBytes(json);
-                _messagingService.Publish(exchange, queue, route, request, message);
+                    context.Material.Remove(material);
+                    await context.SaveChangesAsync();
+                    var json = JsonConvert.SerializeObject(material);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
+                    _messagingService.Publish(exchange, queue, route, request, message);
 
-                break;
-            }
+                    break;
+                }
             case "updateMaterial":
-            {
-                var updatedMaterial = JsonConvert.DeserializeObject<Material>(data);
-                if (updatedMaterial == null)
+                {
+                    var updatedMaterial = JsonConvert.DeserializeObject<Material>(data);
+                    if (updatedMaterial == null)
+                        break;
+
+                    var oldMaterial = await context.Material.SingleOrDefaultAsync(m => m.Id == updatedMaterial.Id);
+                    if (oldMaterial == null)
+                        break;
+
+                    oldMaterial.Name = updatedMaterial.Name;
+                    oldMaterial.Price = updatedMaterial.Price;
+                    oldMaterial.StockAmount = updatedMaterial.StockAmount;
+
+                    await context.SaveChangesAsync();
+
+                    var json = JsonConvert.SerializeObject(updatedMaterial);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
+                    _messagingService.Publish(exchange, queue, route, request, message);
+
                     break;
-
-                var oldMaterial = await context.Material.SingleOrDefaultAsync(m => m.Id == updatedMaterial.Id);
-                if (oldMaterial == null)
-                    break;
-
-                oldMaterial.Name = updatedMaterial.Name;
-                oldMaterial.Price = updatedMaterial.Price;
-                oldMaterial.StockAmount = updatedMaterial.StockAmount;
-
-                await context.SaveChangesAsync();
-
-                var json = JsonConvert.SerializeObject(updatedMaterial);
-                byte[] message = Encoding.UTF8.GetBytes(json);
-                _messagingService.Publish(exchange, queue, route, request, message);
-
-                break;
-            }
+                }
             case "deleteProduct":
-            {
-                Guid id = Guid.Parse(data);
+                {
+                    Guid id = Guid.Parse(data);
 
-                var product = await context.Product.SingleOrDefaultAsync(m => m.Id == id);
-                if (product == null)
-                    return;
+                    var product = await context.Product.SingleOrDefaultAsync(m => m.Id == id);
+                    if (product == null)
+                        return;
 
-                context.Material.Remove(product);
-                await context.SaveChangesAsync();
-                var json = JsonConvert.SerializeObject(product);
-                byte[] message = Encoding.UTF8.GetBytes(json);
-                _messagingService.Publish(exchange, queue, route, request, message);
+                    context.Product.Remove(product);
+                    await context.SaveChangesAsync();
+                    var json = JsonConvert.SerializeObject(product);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
+                    _messagingService.Publish(exchange, queue, route, request, message);
 
-                break;
-            }
+                    break;
+                }
             case "updateProduct":
-            {
-                var updatedProduct = JsonConvert.DeserializeObject<Product>(data);
-                if (updatedProduct == null)
+                {
+                    var updatedProduct = JsonConvert.DeserializeObject<Product>(data);
+                    if (updatedProduct == null)
+                        break;
+
+                    var oldProduct = await context.Product.SingleOrDefaultAsync(m => m.Id == updatedProduct.Id);
+                    if (oldProduct == null)
+                        break;
+
+                    oldProduct.Name = updatedProduct.Name;
+                    oldProduct.Material = updatedProduct.Material;
+                    oldProduct.Description = updatedProduct.Description;
+                    oldProduct.StockAmount = updatedProduct.StockAmount;
+
+                    await context.SaveChangesAsync();
+
+                    var json = JsonConvert.SerializeObject(updatedProduct);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
+                    _messagingService.Publish(exchange, queue, route, request, message);
+
                     break;
-
-                var oldProduct = await context.Product.SingleOrDefaultAsync(m => m.Id == updatedProduct.Id);
-                if (oldProduct == null)
-                    break;
-
-                oldProduct.Name = updatedProduct.Name;
-                oldProduct.Material = updatedProduct.Material;
-                oldProduct.Description = updatedProduct.Description;
-                oldProduct.StockAmount = updatedProduct.StockAmount;
-
-                await context.SaveChangesAsync();
-
-                var json = JsonConvert.SerializeObject(updatedProduct);
-                byte[] message = Encoding.UTF8.GetBytes(json);
-                _messagingService.Publish(exchange, queue, route, request, message);
-
-                break;
-            }
+                }
 
             case "addProduct":
-            {
-                var product = JsonConvert.DeserializeObject<Product>(data);
-                if (product == null)
+                {
+                    var product = JsonConvert.DeserializeObject<Product>(data);
+                    if (product == null)
+                        break;
+
+                    context.Add(product);
+                    await context.SaveChangesAsync();
+
+                    var newProduct = await context.Product.SingleOrDefaultAsync(m => m.Id == product.Id);
+                    if (newProduct == null)
+                        break;
+                    var json = JsonConvert.SerializeObject(newProduct);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
+                    _messagingService.Publish(exchange, queue, route, request, message);
+
                     break;
-
-                context.Add(product);
-                await context.SaveChangesAsync();
-
-                var newProduct = await context.Product.SingleOrDefaultAsync(m => m.Id == product.Id);
-                if (newProduct == null)
-                    break;
-                var json = JsonConvert.SerializeObject(newProduct);
-                byte[] message = Encoding.UTF8.GetBytes(json);
-                _messagingService.Publish(exchange, queue, route, request, message);
-
-                break;
-            }
+                }
                 ;
             case "getAllProducts":
-            {
-                var products = await context.Product.ToListAsync();
-                var json = JsonConvert.SerializeObject(products);
-                byte[] message = Encoding.UTF8.GetBytes(json);
+                {
+                    var products = await context.Product.ToListAsync();
+                    var json = JsonConvert.SerializeObject(products);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
 
-                _messagingService.Publish(exchange, queue, route, request, message);
-                break;
-            }
+                    _messagingService.Publish(exchange, queue, route, request, message);
+                    break;
+                }
             case "getProductById":
-            {
-                Guid id = Guid.Parse(data);
-                var product = await context.Product.Include(m => m.Material).SingleOrDefaultAsync(m => m.Id == id);
-                var json = JsonConvert.SerializeObject(product);
-                byte[] message = Encoding.UTF8.GetBytes(json);
+                {
+                    Guid id = Guid.Parse(data);
+                    var product = await context.Product.Include(m => m.Material).SingleOrDefaultAsync(m => m.Id == id);
+                    var json = JsonConvert.SerializeObject(product);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
 
-                _messagingService.Publish(exchange, queue, route, request, message);
-                break;
-            }
+                    _messagingService.Publish(exchange, queue, route, request, message);
+                    break;
+                }
             case "updateOrder":
                 {
                     var updatedOrder = JsonConvert.DeserializeObject<Order>(data);
@@ -230,7 +230,7 @@ public class DataAccessService : IDataAccessService
                     break;
                 }
 
-                case "addOrder":
+            case "addOrder":
                 {
                     var order = JsonConvert.DeserializeObject<Order>(data);
                     if (order == null)
@@ -249,7 +249,7 @@ public class DataAccessService : IDataAccessService
                     break;
                 }
                 ;
-                case "getAllOrders":
+            case "getAllOrders":
                 {
                     var orders = await context.Order.ToListAsync();
                     var json = JsonConvert.SerializeObject(orders);
@@ -258,7 +258,7 @@ public class DataAccessService : IDataAccessService
                     _messagingService.Publish(exchange, queue, route, request, message);
                     break;
                 }
-                case "getOrderById":
+            case "getOrderById":
                 {
                     Guid id = Guid.Parse(data);
                     var order = await context.Order.Include(m => m.Products).SingleOrDefaultAsync(m => m.Id == id);
@@ -268,11 +268,11 @@ public class DataAccessService : IDataAccessService
                     _messagingService.Publish(exchange, queue, route, request, message);
                     break;
                 }
-                default:
+            default:
                 Console.WriteLine($"Request {request} Not Found");
                 break;
 
-            }
         }
     }
 }
+

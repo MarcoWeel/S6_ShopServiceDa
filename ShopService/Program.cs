@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using MySqlConnector;
 using ShopServiceDA.Data;
-using ShopServiceDA.Controllers;
+using ShopServiceDA.dataaccess.Services;
 using ShopServiceDA.Services.Interfaces;
 using ShopServiceDA.Services;
 
@@ -10,9 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var conStrBuilder = new MySqlConnectionStringBuilder(
     builder.Configuration.GetConnectionString("DBConnectionString"));
-var connection = conStrBuilder.ConnectionString;
+var mySqlConnectionString = conStrBuilder.ConnectionString;
 
-builder.Services.AddDbContext<ShopServiceContext>();
+builder.Services.AddDbContext<ShopServiceContext>(options =>
+    options.UseMySql(mySqlConnectionString, ServerVersion.AutoDetect(mySqlConnectionString)));
 //options =>
 //    options.UseMySql(connection, ServerVersion.AutoDetect(connection)));
 
@@ -20,9 +21,7 @@ builder.Services.AddDbContext<ShopServiceContext>();
 // Add services to the container.
 builder.Services.AddSingleton<IMessagingService, MessagingService>();
 
-builder.Services.AddSingleton<IProductService, ProductService>();
-builder.Services.AddSingleton<IMaterialService, MaterialService>();
-builder.Services.AddSingleton<IOrderService, OrderService>();
+builder.Services.AddSingleton<IDataAccessService, DataAccessService>();
 
 
 builder.Services.AddControllers();
@@ -45,9 +44,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Services.GetRequiredService<IProductService>().SubscribeToGlobal();
-app.Services.GetRequiredService<IMaterialService>().SubscribeToGlobal();
-app.Services.GetRequiredService<IOrderService>().SubscribeToGlobal();
+app.Services.GetService<IDataAccessService>().SubscribeToPersistence();
 
 
 app.Run();
