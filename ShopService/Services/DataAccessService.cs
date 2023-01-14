@@ -248,7 +248,6 @@ public class DataAccessService : IDataAccessService
 
                     break;
                 }
-                ;
             case "getAllOrders":
                 {
                     var orders = await context.Order.ToListAsync();
