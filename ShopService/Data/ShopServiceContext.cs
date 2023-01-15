@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ShopServiceDA.Models;
+using ShopService.Models;
 
 namespace ShopServiceDA.Data
 {
@@ -16,6 +16,7 @@ namespace ShopServiceDA.Data
 
         public DbSet<Product> Product { get; set; } = default!;
         public DbSet<Material> Material { get; set; } = default!;
+        public DbSet<ProductMapping> ProductMappings { get; set; } = default!;
 
         public DbSet<Order> Order { get; set; } = default!;
     }

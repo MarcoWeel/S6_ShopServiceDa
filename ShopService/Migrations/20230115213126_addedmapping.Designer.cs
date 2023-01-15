@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShopServiceDA.Data;
 
@@ -10,16 +11,17 @@ using ShopServiceDA.Data;
 namespace ShopServiceDA.Migrations
 {
     [DbContext(typeof(ShopServiceContext))]
-    partial class ShopServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20230115213126_addedmapping")]
+    partial class addedmapping
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "6.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("ShopService.Models.Material", b =>
+            modelBuilder.Entity("ShopServiceDA.Models.Material", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -40,7 +42,7 @@ namespace ShopServiceDA.Migrations
                     b.ToTable("Material");
                 });
 
-            modelBuilder.Entity("ShopService.Models.Order", b =>
+            modelBuilder.Entity("ShopServiceDA.Models.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,7 +59,7 @@ namespace ShopServiceDA.Migrations
                     b.ToTable("Order");
                 });
 
-            modelBuilder.Entity("ShopService.Models.Product", b =>
+            modelBuilder.Entity("ShopServiceDA.Models.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,41 +76,27 @@ namespace ShopServiceDA.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("char(36)");
+
                     b.Property<int>("StockAmount")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderId");
+
                     b.ToTable("Product");
                 });
 
-            modelBuilder.Entity("ShopService.Models.ProductMapping", b =>
+            modelBuilder.Entity("ShopServiceDA.Models.Product", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid?>("OrderId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("ProductMappings");
-                });
-
-            modelBuilder.Entity("ShopService.Models.ProductMapping", b =>
-                {
-                    b.HasOne("ShopService.Models.Order", null)
+                    b.HasOne("ShopServiceDA.Models.Order", null)
                         .WithMany("Products")
                         .HasForeignKey("OrderId");
                 });
 
-            modelBuilder.Entity("ShopService.Models.Order", b =>
+            modelBuilder.Entity("ShopServiceDA.Models.Order", b =>
                 {
                     b.Navigation("Products");
                 });

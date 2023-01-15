@@ -1,4 +1,4 @@
-﻿using ShopServiceDA.Models;
+﻿using ShopService.Models;
 
 namespace ShopServiceDA.Services.Interfaces
 {

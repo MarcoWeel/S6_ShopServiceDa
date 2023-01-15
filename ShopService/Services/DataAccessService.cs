@@ -3,8 +3,8 @@ using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
+using ShopService.Models;
 using ShopServiceDA.Data;
-using ShopServiceDA.Models;
 using ShopServiceDA.Services.Interfaces;
 
 namespace ShopServiceDA.dataaccess.Services;
@@ -159,7 +159,7 @@ public class DataAccessService : IDataAccessService
                         break;
 
                     oldProduct.Name = updatedProduct.Name;
-                    oldProduct.Material = updatedProduct.Material;
+                    oldProduct.MaterialId = updatedProduct.MaterialId;
                     oldProduct.Description = updatedProduct.Description;
                     oldProduct.StockAmount = updatedProduct.StockAmount;
 
@@ -203,7 +203,7 @@ public class DataAccessService : IDataAccessService
             case "getProductById":
                 {
                     Guid id = Guid.Parse(data);
-                    var product = await context.Product.Include(m => m.Material).SingleOrDefaultAsync(m => m.Id == id);
+                    var product = await context.Product.SingleOrDefaultAsync(m => m.Id == id);
                     var json = JsonConvert.SerializeObject(product);
                     byte[] message = Encoding.UTF8.GetBytes(json);
 
@@ -263,7 +263,7 @@ public class DataAccessService : IDataAccessService
             case "getOrderById":
                 {
                     Guid id = Guid.Parse(data);
-                    var order = await context.Order.Include(m => m.Products).SingleOrDefaultAsync(m => m.Id == id);
+                    var order = await context.Order.SingleOrDefaultAsync(m => m.Id == id);
                     var json = JsonConvert.SerializeObject(order);
                     byte[] message = Encoding.UTF8.GetBytes(json);
 

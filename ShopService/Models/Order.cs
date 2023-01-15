@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ShopServiceDA.Models
+namespace ShopService.Models
 {
     public class Order
     {
@@ -11,6 +11,6 @@ namespace ShopServiceDA.Models
         public Guid Id { get; set; }
         public Guid UserGuid { get; set; }
         public double TotalPrice { get; set; }
-        public List<Product> Products { get; set; }
+        public List<ProductMapping> Products { get; set; }
     }
 }
