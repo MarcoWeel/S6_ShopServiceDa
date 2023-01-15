@@ -37,7 +37,7 @@ public class DataAccessService : IDataAccessService
         _messagingService.Subscribe("material-data",
             (BasicDeliverEventArgs ea, string queue, string request) => RouteCallback(ea, queue, request),
             ExchangeType.Topic, "*.*.request");
-        _messagingService.Subscribe("gdprexchange",
+        _messagingService.Subscribe("gdprExchange",
             (BasicDeliverEventArgs ea, string queue, string request) => RouteCallback(ea, queue, request),
             ExchangeType.Topic, "*");
     }
