@@ -210,6 +210,16 @@ public class DataAccessService : IDataAccessService
                     _messagingService.Publish(exchange, queue, route, request, message);
                     break;
                 }
+            case "deleteOrder":
+            {
+                Guid id = Guid.Parse(data);
+                Order order = await context.Order.SingleOrDefaultAsync(m => m.Id == id);
+                if (order == null)
+                    return;
+                context.Order.Remove(order);
+                await context.SaveChangesAsync();
+                break;
+            };
             case "updateOrder":
                 {
                     var updatedOrder = JsonConvert.DeserializeObject<Order>(data);
