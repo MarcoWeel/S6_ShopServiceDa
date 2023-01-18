@@ -211,15 +211,18 @@ public class DataAccessService : IDataAccessService
                     break;
                 }
             case "deleteOrder":
-            {
-                Guid id = Guid.Parse(data);
-                Order order = await context.Order.Include(x=>x.Products ).SingleOrDefaultAsync(m => m.Id == id);
-                if (order == null)
-                    return;
-                context.Order.Remove(order);
-                await context.SaveChangesAsync();
-                break;
-            };
+                {
+                    Guid _id = new Guid(data); //Guid.Parse(data);
+                    Order order = await context.Order.Include(x => x.Products).SingleOrDefaultAsync(m => m.Id == _id);
+                    if (order == null)
+                        return;
+                    context.Order.Remove(order);
+                    await context.SaveChangesAsync();
+                    var json = JsonConvert.SerializeObject(order);
+                    byte[] message = Encoding.UTF8.GetBytes(json);
+                    _messagingService.Publish(exchange, queue, route, request, message);
+                    break;
+                };
             case "updateOrder":
                 {
                     var updatedOrder = JsonConvert.DeserializeObject<Order>(data);
