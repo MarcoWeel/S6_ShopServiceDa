@@ -213,7 +213,7 @@ public class DataAccessService : IDataAccessService
             case "deleteOrder":
             {
                 Guid id = Guid.Parse(data);
-                Order order = await context.Order.SingleOrDefaultAsync(m => m.Id == id);
+                Order order = await context.Order.Include(x=>x.Products).SingleOrDefaultAsync(m => m.Id == id);
                 if (order == null)
                     return;
                 context.Order.Remove(order);
